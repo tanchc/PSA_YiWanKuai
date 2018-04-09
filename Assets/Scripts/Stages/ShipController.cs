@@ -13,6 +13,7 @@ public class ShipController : MonoBehaviour {
 	private int currCargo;
 	private int cargoCount;
 	private Stack<int> containers = new Stack<int> ();
+	private bool isBoss = false;
 
     public GameObject timer;
     public GameObject cargoSpeechBubble;
@@ -29,11 +30,15 @@ public class ShipController : MonoBehaviour {
         anim = GetComponent<Animator>();
 		if (transform.position.x > 0) {
 			isOffloading = false;
-			anim.SetTrigger ("TurnLeft");
+			//anim.SetTrigger ("TurnLeft");
 			cargoCount = 0;
 			toTheLeft = true;
 		} else {
-			cargoCount = Random.Range (1, 5);
+			if (isBoss) {
+				cargoCount = 50;
+			} else {
+				cargoCount = Random.Range (3, 6);
+			}
 			//0 is small container, 1 is medium container, 2 is large container
 			isOffloading = true;
 
@@ -65,6 +70,11 @@ public class ShipController : MonoBehaviour {
     public void SetDockTime(float f) {
         dockTime = f;
     }
+
+	public void SetBoss() {
+		isBoss = true;
+		cargoCount = 50;
+	}
 
     void OnTriggerEnter2D (Collider2D other) {
         if (other.tag.Equals("Port")) {
@@ -108,9 +118,9 @@ public class ShipController : MonoBehaviour {
 
     private void OnMouseDown()
     {
-		if (isDocked && isOffloading && (cargoCount > 0)) {
+		if (isDocked && isOffloading && (cargoCount > 0) && (gameManager.getCargo() == null) && (!gameManager.isPaused)) {
 			getCargo ();
-		} else if (isDocked && !isOffloading && (gameManager.getCargo() != null) && (gameManager.contSource != "Ship")) {
+		} else if (isDocked && !isOffloading && (gameManager.getCargo() != null) && (gameManager.contSource != "Ship") && (!gameManager.isPaused)) {
 			addCargo (gameManager.getCargoType());
 			gameManager.resetCargo ();
 		}
@@ -154,5 +164,10 @@ public class ShipController : MonoBehaviour {
 
     public int getCurrCargo() {
         return currCargo;
+    }
+
+    public bool getDockStatus()
+    {
+        return isDocked;
     }
 }

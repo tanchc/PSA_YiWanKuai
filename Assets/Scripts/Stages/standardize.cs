@@ -18,8 +18,9 @@ public class standardize : MonoBehaviour {
 	}
 
 	public void StandardizeGame() {
-		if(gm.Unpaused() && !gm.isStandardized)
-		StartCoroutine(StartStandardizeGame());
+		if (gm.Unpaused () && !gm.isStandardized) {
+			StartCoroutine (StartStandardizeGame ());
+		}
 	}
 
 	IEnumerator StartStandardizeGame () {

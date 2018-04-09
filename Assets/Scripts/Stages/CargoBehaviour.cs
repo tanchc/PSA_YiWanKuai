@@ -20,14 +20,14 @@ public class CargoBehaviour : MonoBehaviour {
 
     private void OnMouseDown()
     {
-		if (gm.getCargo () != null && currCount < 10) {
+		if (gm.getCargo () != null && (currCount < 3) && (!gm.isPaused)) {
 			if ((containerStack.Count == 0) || (gm.getCargoType () <= containerStack.Peek ())) {
 				containerStack.Push (gm.getCargoType ());
 				spawn ();
 				gm.resetCargo ();
 				shiftSP ();
 			}
-		} else if (gm.getCargo () == null && currCount > 0) {
+		} else if (gm.getCargo () == null && (currCount > 0)  && (!gm.isPaused)) {
 			containerStack.Pop ();
 			shiftSPDown ();
 			gm.setCargo (getTopContainer ());
@@ -46,7 +46,7 @@ public class CargoBehaviour : MonoBehaviour {
 
     void shiftSP()
     {
-        this.gameObject.transform.GetChild(0).transform.position = new Vector3(this.gameObject.transform.GetChild(0).transform.position.x, this.gameObject.transform.GetChild(0).transform.position.y + 0.21f, this.gameObject.transform.GetChild(0).transform.position.z);
+        this.gameObject.transform.GetChild(0).transform.position = new Vector3(this.gameObject.transform.GetChild(0).transform.position.x, this.gameObject.transform.GetChild(0).transform.position.y + 0.30f, this.gameObject.transform.GetChild(0).transform.position.z);
     }
 
 	private void shiftSPDown()

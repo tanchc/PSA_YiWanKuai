@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour {
 
     public bool isPaused;
-    public bool isCleared;
     public bool isTimeUp;
     public bool isFrozen;
 	public bool isStandardized;
@@ -14,13 +13,14 @@ public class GameManager : MonoBehaviour {
 	public string contSource = null;
     public GameObject canvas;
     public GameObject timeUpScreen;
+    public GameObject clearScreen;
     public GameObject musicManager;
 	public GameObject cargoLarge;
 	public GameObject cargoMedium;
 
     private int currCargo;
 
-	private int scoreToClear;
+	public int scoreToClear;
 	private int currentScore;
 
 
@@ -29,7 +29,11 @@ public class GameManager : MonoBehaviour {
 
     void Start() {
 		currentScore = 0;
-		scoreToClear = Statics.stageNumber * 1;
+		scoreToClear = Statics.stageNumber * 2;
+		if(Statics.stageNumber % 5 == 0 ){
+			scoreToClear = 15 + ((Statics.stageNumber - 5));
+		}
+        Debug.Log(scoreToClear);
         StartCoroutine(StartCountdown());
 		isFrozen = false;
 		isStandardized = false;
@@ -37,8 +41,13 @@ public class GameManager : MonoBehaviour {
 
     void Update() {
         if(timeLeft <= 0 && !isTimeUp) {
+            if (currentScore >= scoreToClear) {
+                StartCoroutine(Clear());
+            }
+            else {
+                StartCoroutine(TimeUp());
+            }
             isTimeUp = true;
-            StartCoroutine(TimeUp());
         }
         if (Input.GetKeyDown(KeyCode.Backslash)) {
             PlayerPrefs.DeleteAll();
@@ -46,12 +55,12 @@ public class GameManager : MonoBehaviour {
     }
 
     public bool Unpaused() {
-        return (!isPaused && !isTimeUp && !isCleared);
+        return (!isPaused && !isTimeUp);
     }
 
     IEnumerator StartCountdown() {
         while (!isTimeUp) {
-            if (!isPaused && !isCleared && !isFrozen) {
+            if (!isPaused && !isFrozen) {
                 yield return new WaitForSeconds(0.1f);
                 timeLeft -= 0.1f;
             }
@@ -63,14 +72,21 @@ public class GameManager : MonoBehaviour {
         GameObject newCanvas = Instantiate(canvas) as GameObject;
         GameObject createImage = Instantiate(timeUpScreen) as GameObject;
         createImage.transform.SetParent(newCanvas.transform, false);
-        if (currentScore >= scoreToClear) {
-            PlayerPrefs.SetInt("lastClearedStage", Statics.stageNumber + 1);
-            Statics.updateLastClearedStage();
-            StartCoroutine(musicManager.GetComponent<MusicManager>().playClear());
-        }
-        else {
-            StartCoroutine(musicManager.GetComponent<MusicManager>().playLose());
-        }
+        StartCoroutine(musicManager.GetComponent<MusicManager>().playLose());
+        yield return null;
+    }
+
+    IEnumerator Clear() {
+        GameObject newCanvas = Instantiate(canvas) as GameObject;
+        GameObject createImage = Instantiate(clearScreen) as GameObject;
+        createImage.transform.SetParent(newCanvas.transform, false);
+		if (Statics.stageNumber == Statics.lastClearedStage) {
+			PlayerPrefs.SetInt ("lastClearedStage", Statics.stageNumber + 1);
+			Statics.updateLastClearedStage ();
+
+		}
+		Statics.stageNumber++;
+        StartCoroutine(musicManager.GetComponent<MusicManager>().playClear());
         yield return null;
     }
 
